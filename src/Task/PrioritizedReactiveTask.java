@@ -82,12 +82,13 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
     }
 
     public void runTaskAsync() {
+        //It is set to true here!!!
         runTaskThread.set(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    task();
+                    task(); //task is ran after runTaskThread is set to true!
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {

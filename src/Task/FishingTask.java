@@ -27,6 +27,7 @@ public class FishingTask extends PrioritizedReactiveTask {
             }
         }.sleep();
 
+        //runTaskThread.get() evaluates to false???
         if(fishingSpotExists && runTaskThread.get()) {
             long idleTime = randomNormalDist(5000, 3000);
             log("Fishing spot found!, Idling for " + idleTime);
