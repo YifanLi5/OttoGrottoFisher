@@ -20,15 +20,15 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
         public int getValue() { return value; }
     }
 
-
-    Priority p;
+    Priority p; //allows for task with higher priority upon enqueueing to immediately interrupt presenting executing tasks of lower priority
     private static PriorityQueue<PrioritizedReactiveTask> taskQueue;
     private static Set<PrioritizedReactiveTask> taskHistory; //used to kill all threads
 
-    AtomicBoolean runEnqueueTaskThread;
-    AtomicBoolean runTaskThread = new AtomicBoolean(false);
+    private AtomicBoolean taskEnqueued = new AtomicBoolean(false); //Task instances should be singleton in the PQ. ex: Only 1 instance of FishingTask can be in the PQ at any time.
+    private AtomicBoolean runEnqueueTaskThread = new AtomicBoolean(false); //flag used to stop the thread that checks whether the task should be enqueued.
+    AtomicBoolean runTaskThread = new AtomicBoolean(false); //onloop sets this to false thread if it wants to stop execution of the task. This is usually followed by a switch to a higher priority task
 
-    public PrioritizedReactiveTask(Bot bot) {
+    PrioritizedReactiveTask(Bot bot) {
         exchangeContext(bot);
     }
 
@@ -40,55 +40,56 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
         return taskQueue;
     }
 
-    public static void killAllThreads() {
+    public static void onStopCleanUp() {
         for(PrioritizedReactiveTask task: taskHistory) {
             task.stopTask();
-            task.stopCheckEnqueueTaskConditionThread();
+            if(task.runEnqueueTaskThread != null)
+                task.runEnqueueTaskThread.set(false);
         }
-    }
-
-    public static void nullifyTaskQueue() {
         taskQueue = null;
+        taskHistory = null;
     }
 
+    /**
+     * Starts a thread that continuously checks whether its relevant task should execute.
+     * If the task should execute, enqueues it into the taskQ.
+     * ex: The DropTask enqueueing thread checks if the inventory is full of fish
+     */
     public void startCheckEnqueueTaskConditionThread() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                runEnqueueTaskThread = new AtomicBoolean(true);
+                runEnqueueTaskThread.set(true);
                 while(runEnqueueTaskThread.get()) {
-                    if(taskQueue.contains(PrioritizedReactiveTask.this)) {
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        continue;
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
 
-                    if(checkEnqueueTaskCondition()) {
+                    if(taskEnqueued.get() || runTaskThread.get()) { //do not enqueue the task if said task is already enqueued or is already running.
+                        log(PrioritizedReactiveTask.this.getClass().getSimpleName() + " already in queue or is currently executing");
+                    } else if(checkEnqueueTaskCondition()) {
                         System.out.println("Thread " + Thread.currentThread().getId() + " enqueued task: " + this.getClass().getSimpleName());
                         taskQueue.add(PrioritizedReactiveTask.this);
                         taskHistory.add(PrioritizedReactiveTask.this);
+                        taskEnqueued.set(true);
                     }
                 }
             }
         }).start();
     }
 
-    public void stopCheckEnqueueTaskConditionThread() {
-        if(runEnqueueTaskThread != null)
-            runEnqueueTaskThread.set(false);
-    }
-
-    public void runTaskAsync() {
-        //It is set to true here!!!
+    /**
+     * Starts the thread that executes the task
+     */
+    public void startTaskRunnerThread() {
         runTaskThread.set(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    task(); //task is ran after runTaskThread is set to true!
+                    task();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
@@ -98,13 +99,25 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
         }).start();
     }
 
+    /**
+     * Stops the above ^^^ Thread
+     */
     public void stopTask() {
         if(runTaskThread != null)
             runTaskThread.set(false);
     }
 
+    /**
+     * Subclasses implement the task directions to execute
+     * Inorder to have immediate task interruption on enqueueing of higher priority task
+     * each step ought to check for runTaskThread==true and return if false
+     */
     abstract void task() throws InterruptedException;
 
+    /**
+     * Subclasses implement when the task should execute
+     * @return should the task be enqueued, used by startCheckEnqueueTaskConditionThread()
+     */
     abstract boolean checkEnqueueTaskCondition();
 
     @Override
@@ -122,5 +135,9 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
 
     public Priority getPriority() {
         return p;
+    }
+
+    public void setTaskEnqueuedToFalse() {
+        this.taskEnqueued.set(false);
     }
 }

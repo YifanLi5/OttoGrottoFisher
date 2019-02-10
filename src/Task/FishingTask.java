@@ -18,6 +18,11 @@ public class FishingTask extends PrioritizedReactiveTask {
     @Override
     void task() throws InterruptedException {
         log("Thread " + Thread.currentThread().getId() + " is running fishing task");
+        if(!(inventory.contains("Feather") || inventory.contains("Bait")) || !inventory.contains("Barbarian rod")) {
+            warn("Inventory does not contain feathers or bait");
+            bot.getScriptExecutor().stop(false);
+        }
+
         final NPC[] fishingSpot = new NPC[1];
         boolean fishingSpotExists = new ConditionalSleep(2000) {
             @Override
@@ -27,14 +32,17 @@ public class FishingTask extends PrioritizedReactiveTask {
             }
         }.sleep();
 
-        //runTaskThread.get() evaluates to false???
         if(fishingSpotExists && runTaskThread.get()) {
-            long idleTime = randomNormalDist(5000, 3000);
-            log("Fishing spot found!, Idling for " + idleTime);
-            sleep(idleTime);
+            if(fishingSpot[0].exists() && runTaskThread.get()) {
+                if(fishingSpot[0].interact("Use-rod") && runTaskThread.get())
+                new ConditionalSleep(5000, 1000) {
+                    @Override
+                    public boolean condition() throws InterruptedException {
+                        return myPlayer().getAnimation() == 623;
+                    }
+                }.sleep();
 
-            if(fishingSpot[0].exists()) {
-                fishingSpot[0].interact("Use-rod");
+                mouse.moveOutsideScreen();
             }
         } else {
             warn("Fishing spot not found! Stopping!");
