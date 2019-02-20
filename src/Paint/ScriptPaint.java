@@ -12,7 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-public class MyPainter extends BotMouseListener implements Painter {
+public class ScriptPaint extends BotMouseListener implements Painter {
     private static final Color GRAY = new Color(70, 61, 50, 156);
     private static final String IMG_FOLDER = "resources", STR = "/str.png", AGILITY = "/agility.png", FISHING = "/fishing.png";
     private final static Rectangle TOGGLE_PAINT_VISIBILITY = new Rectangle(0, 291, 47, 47);
@@ -21,7 +21,7 @@ public class MyPainter extends BotMouseListener implements Painter {
     private Script script;
     private long startTime;
 
-    public MyPainter(Script script){
+    public ScriptPaint(Script script){
         this.script = script;
         try {
             str = ImageIO.read(script.getScriptResourceAsStream(IMG_FOLDER + STR));
@@ -142,6 +142,7 @@ public class MyPainter extends BotMouseListener implements Painter {
         g.drawString(String.valueOf(script.getExperienceTracker().getGainedLevels(Skill.AGILITY)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + 2*COLUMN_HEIGHT + TXT_OFFSET);
     }
 
+    //column 3
     private void drawXpGained(Graphics2D g){
         final int X_ORIGIN = 235, Y_ORIGIN = 338, COLUMN_WIDTH = 94, FULL_COLUMN_HEIGHT = 142, COLUMN_HEIGHT = 47, TXT_OFFSET = 32;
         g.setColor(GRAY);
@@ -153,6 +154,7 @@ public class MyPainter extends BotMouseListener implements Painter {
         g.drawString(formatValue(script.getExperienceTracker().getGainedXP(Skill.AGILITY)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + 2*COLUMN_HEIGHT + TXT_OFFSET);
     }
 
+    //column 4
     private void drawXPH(Graphics2D g){
         final int X_ORIGIN = 329, Y_ORIGIN = 338, COLUMN_WIDTH = 94, FULL_COLUMN_HEIGHT = 142, COLUMN_HEIGHT = 47, TXT_OFFSET = 32;
         g.setColor(GRAY);
@@ -164,6 +166,7 @@ public class MyPainter extends BotMouseListener implements Painter {
         g.drawString(formatValue(script.getExperienceTracker().getGainedXPPerHour(Skill.AGILITY)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + 2*COLUMN_HEIGHT + TXT_OFFSET);
     }
 
+    //column 5
     private void drawTTL(Graphics2D g){
         final int X_ORIGIN = 423, Y_ORIGIN = 338, COLUMN_WIDTH = 94, FULL_COLUMN_HEIGHT = 142, COLUMN_HEIGHT = 47, TXT_OFFSET = 32;
         g.setColor(GRAY);

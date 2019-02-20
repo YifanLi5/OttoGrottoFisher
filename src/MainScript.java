@@ -1,4 +1,4 @@
-import Paint.MyPainter;
+import Paint.ScriptPaint;
 import Task.DropTask;
 import Task.FishingTask;
 import Task.PrioritizedReactiveTask;
@@ -10,14 +10,16 @@ import java.util.PriorityQueue;
 @ScriptManifest(author = "PayPalMeRSGP", name = MainScript.SCRIPT_NAME, info = "Barbarian Fisher used to demo PrioritizedReactiveTask", version = 0.5, logo = "")
 public class MainScript extends Script{
     private long mainThreadID = Thread.currentThread().getId();
-    static final String SCRIPT_NAME = "Barbarian_Fisher v0.99";
+    static final String SCRIPT_NAME = "Barbarian_Fisher v0.97";
     private PriorityQueue<PrioritizedReactiveTask> taskQ;
 
     @Override
     public void onStart() throws InterruptedException {
         super.onStart();
         taskQ = PrioritizedReactiveTask.initializeTaskQueue();
-        new MyPainter(this);
+
+        //references to these objects are not needed.
+        new ScriptPaint(this);
         new FishingTask(bot).startCheckEnqueueTaskConditionThread();
         new DropTask(bot).startCheckEnqueueTaskConditionThread();
     }
@@ -40,6 +42,12 @@ public class MainScript extends Script{
         }
 
         return 1000;
+    }
+
+    @Override
+    public void pause() {
+        super.pause();
+
     }
 
     @Override

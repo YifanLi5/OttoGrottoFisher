@@ -24,9 +24,9 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
     private static PriorityQueue<PrioritizedReactiveTask> taskQueue;
     private static Set<PrioritizedReactiveTask> taskHistory; //used to kill all threads
 
-    private AtomicBoolean taskEnqueued = new AtomicBoolean(false); //Task instances should be singleton in the PQ. ex: Only 1 instance of FishingTask can be in the PQ at any time.
-    private AtomicBoolean runEnqueueTaskThread = new AtomicBoolean(false); //flag used to stop the thread that checks whether the task should be enqueued.
-    AtomicBoolean runTaskThread = new AtomicBoolean(false); //onloop sets this to false thread if it wants to stop execution of the task. This is usually followed by a switch to a higher priority task
+    private volatile AtomicBoolean taskEnqueued = new AtomicBoolean(false); //Task instances should be singleton in the PQ. ex: Only 1 instance of FishingTask can be in the PQ at any time.
+    private volatile AtomicBoolean runEnqueueTaskThread = new AtomicBoolean(false); //flag used to stop the thread that checks whether the task should be enqueued.
+    volatile AtomicBoolean runTaskThread = new AtomicBoolean(false); //onloop sets this to false thread if it wants to stop execution of the task. This is usually followed by a switch to a higher priority task
 
     PrioritizedReactiveTask(Bot bot) {
         exchangeContext(bot);
@@ -50,6 +50,12 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
         taskHistory = null;
     }
 
+    public static void onPauseCleanUp() {
+        for(PrioritizedReactiveTask task: taskHistory) {
+            task.stopTask();
+        }
+    }
+
     /**
      * Starts a thread that continuously checks whether its relevant task should execute.
      * If the task should execute, enqueues it into the taskQ.
@@ -68,12 +74,18 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
                     }
 
                     if(taskEnqueued.get() || runTaskThread.get()) { //do not enqueue the task if said task is already enqueued or is already running.
-                        log(PrioritizedReactiveTask.this.getClass().getSimpleName() + " already in queue or is currently executing");
+                        continue;
+                        //log(PrioritizedReactiveTask.this.getClass().getSimpleName() + " already in queue or is currently executing");
                     } else if(checkEnqueueTaskCondition()) {
                         System.out.println("Thread " + Thread.currentThread().getId() + " enqueued task: " + this.getClass().getSimpleName());
                         taskQueue.add(PrioritizedReactiveTask.this);
                         taskHistory.add(PrioritizedReactiveTask.this);
                         taskEnqueued.set(true);
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
