@@ -71,9 +71,10 @@ public class DropTask extends PrioritizedReactiveTask {
         keyboard.releaseKey(KeyEvent.VK_SHIFT);
     }
 
+    //drop all fish if the inventory has filled up OR almost filled up. ex: It may be preferable to not re-fish if there are only  5 slots left.
     @Override
-    boolean checkEnqueueTaskCondition() {
-        return inventory.isFull() && inventory.contains("Leaping trout", "Leaping salmon", "Leaping sturgeon");
+    boolean shouldTaskActivate() {
+        return (inventory.isFull() || inventory.getEmptySlotCount() < 8) && inventory.contains("Leaping trout", "Leaping salmon", "Leaping sturgeon");
     }
 
 }

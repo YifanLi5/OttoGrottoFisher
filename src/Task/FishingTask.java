@@ -2,8 +2,10 @@ package Task;
 
 import org.osbot.rs07.Bot;
 import org.osbot.rs07.api.map.Area;
+import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Tab;
+import org.osbot.rs07.event.InteractionEvent;
 import org.osbot.rs07.utility.ConditionalSleep;
 
 public class FishingTask extends PrioritizedReactiveTask {
@@ -15,6 +17,8 @@ public class FishingTask extends PrioritizedReactiveTask {
     private static final Area MID_FISH_AREA = new Area(2498, 3506, 2499, 3513);
     private static final Area N_FISH_AREA = new Area(2502, 3518, 2504, 3517);
     private static final Area S_FISH_AREA = new Area(2502, 3494, 2503, 3498);
+
+    private static InteractionEvent fishEvent;
 
     public FishingTask(Bot bot) {
         super(bot);
@@ -52,7 +56,7 @@ public class FishingTask extends PrioritizedReactiveTask {
 
         if(fishingSpotExists) {
             if (fishingSpot[0].exists()) {
-                if (fishingSpot[0].interact("Use-rod") && runTaskThread.get()) {
+                if (noCameraFishingSpotInteraction(fishingSpot[0]) && runTaskThread.get()) {
                     mouse.moveOutsideScreen();
                     new ConditionalSleep(5000, 1000) {
                         @Override
@@ -85,7 +89,14 @@ public class FishingTask extends PrioritizedReactiveTask {
     }
 
     @Override
-    boolean checkEnqueueTaskCondition() {
+    boolean shouldTaskActivate() {
         return myPlayer().getAnimation() == IDLE_ID && !inventory.isFull();
+    }
+
+    private boolean noCameraFishingSpotInteraction(Entity fishSpot) {
+        InteractionEvent fishEvent = new InteractionEvent(fishSpot, "Use-rod");
+        fishEvent.setOperateCamera(false);
+        execute(fishEvent);
+        return fishEvent.hasFinished();
     }
 }

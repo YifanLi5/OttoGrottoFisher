@@ -22,7 +22,7 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
 
     Priority p; //allows for task with higher priority upon enqueueing to immediately interrupt presenting executing tasks of lower priority
     private static PriorityQueue<PrioritizedReactiveTask> taskQueue;
-    private static Set<PrioritizedReactiveTask> taskHistory; //used to kill all threads
+    private static Set<PrioritizedReactiveTask> taskHistory; //used to store all initialized threads to later kill all threads. ex: onStop()
 
     private volatile AtomicBoolean taskEnqueued = new AtomicBoolean(false); //Task instances should be singleton in the PQ. ex: Only 1 instance of FishingTask can be in the PQ at any time.
     private volatile AtomicBoolean runEnqueueTaskThread = new AtomicBoolean(false); //flag used to stop the thread that checks whether the task should be enqueued.
@@ -40,6 +40,7 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
         return taskQueue;
     }
 
+    //stop all threads
     public static void onStopCleanUp() {
         for(PrioritizedReactiveTask task: taskHistory) {
             task.stopTask();
@@ -50,6 +51,7 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
         taskHistory = null;
     }
 
+    //stop all task threads but not the task activation and encasement threads
     public static void onPauseCleanUp() {
         for(PrioritizedReactiveTask task: taskHistory) {
             task.stopTask();
@@ -76,7 +78,7 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
                     if(taskEnqueued.get() || runTaskThread.get()) { //do not enqueue the task if said task is already enqueued or is already running.
                         continue;
                         //log(PrioritizedReactiveTask.this.getClass().getSimpleName() + " already in queue or is currently executing");
-                    } else if(checkEnqueueTaskCondition()) {
+                    } else if(shouldTaskActivate()) {
                         System.out.println("Thread " + Thread.currentThread().getId() + " enqueued task: " + this.getClass().getSimpleName());
                         taskQueue.add(PrioritizedReactiveTask.this);
                         taskHistory.add(PrioritizedReactiveTask.this);
@@ -130,7 +132,7 @@ public abstract class PrioritizedReactiveTask extends MethodProvider implements 
      * Subclasses implement when the task should execute
      * @return should the task be enqueued, used by startCheckEnqueueTaskConditionThread()
      */
-    abstract boolean checkEnqueueTaskCondition();
+    abstract boolean shouldTaskActivate();
 
     @Override
     public int compareTo(PrioritizedReactiveTask other) {

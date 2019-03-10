@@ -2,6 +2,7 @@ package Paint;
 
 import org.osbot.rs07.api.Skills;
 import org.osbot.rs07.api.ui.Skill;
+import org.osbot.rs07.api.util.ExperienceTracker;
 import org.osbot.rs07.canvas.paint.Painter;
 import org.osbot.rs07.input.mouse.BotMouseListener;
 import org.osbot.rs07.script.Script;
@@ -20,7 +21,7 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     private BufferedImage str, agility, fishing;
     private Script script;
     private long startTime;
-
+    private ExperienceTracker tracker;
     public ScriptPaint(Script script){
         this.script = script;
         try {
@@ -33,6 +34,10 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         script.getBot().addPainter(this);
         script.getBot().addMouseListener(this);
         startTime = System.currentTimeMillis();
+        tracker = script.getExperienceTracker();
+        tracker.start(Skill.FISHING);
+        tracker.start(Skill.STRENGTH);
+        tracker.start(Skill.AGILITY);
     }
 
     @Override
@@ -40,16 +45,24 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         drawShowStatsBtn(g);
         drawMouse(g);
         drawRuntime(g);
-
         if(paintVisible) {
+            String fishingXpGained = formatValue(tracker.getGainedXP(Skill.FISHING));
+            String strXpGained = formatValue(tracker.getGainedXP(Skill.STRENGTH));
+            String agilityXpGained = formatValue(tracker.getGainedXP(Skill.AGILITY));
+            String fishingXPH = formatValue(tracker.getGainedXPPerHour(Skill.FISHING));
+            String strXPH = formatValue(tracker.getGainedXPPerHour(Skill.STRENGTH));
+            String agilityXPH = formatValue(tracker.getGainedXPPerHour(Skill.AGILITY));
+            String fishingTTL = formatTime(tracker.getTimeToLevel(Skill.FISHING));
+            String strTTL = formatTime(tracker.getTimeToLevel(Skill.STRENGTH));
+            String agilityTTL = formatTime(tracker.getTimeToLevel(Skill.AGILITY));
             drawImgs(g);
             drawTopLabel(g);
             drawImgs(g);
             drawLVLs(g);
             drawLvlsGained(g);
-            drawXpGained(g);
-            drawXPH(g);
-            drawTTL(g);
+            drawXpGained(g, fishingXpGained, strXpGained, agilityXpGained);
+            drawXPH(g, fishingXPH, strXPH, agilityXPH);
+            drawTTL(g, fishingTTL, strTTL, agilityTTL);
         }
     }
 
@@ -143,39 +156,39 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     }
 
     //column 3
-    private void drawXpGained(Graphics2D g){
+    private void drawXpGained(Graphics2D g, String fishingXpGained, String strXpGained, String agilityXpGained){
         final int X_ORIGIN = 235, Y_ORIGIN = 338, COLUMN_WIDTH = 94, FULL_COLUMN_HEIGHT = 142, COLUMN_HEIGHT = 47, TXT_OFFSET = 32;
         g.setColor(GRAY);
         g.fillRect(X_ORIGIN, Y_ORIGIN, COLUMN_WIDTH, FULL_COLUMN_HEIGHT);
         g.setColor(Color.WHITE);
 
-        g.drawString(formatValue(script.getExperienceTracker().getGainedXP(Skill.FISHING)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + TXT_OFFSET);
-        g.drawString(formatValue(script.getExperienceTracker().getGainedXP(Skill.STRENGTH)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + COLUMN_HEIGHT + TXT_OFFSET);
-        g.drawString(formatValue(script.getExperienceTracker().getGainedXP(Skill.AGILITY)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + 2*COLUMN_HEIGHT + TXT_OFFSET);
+        g.drawString(fishingXpGained, X_ORIGIN + TXT_OFFSET, Y_ORIGIN + TXT_OFFSET);
+        g.drawString(strXpGained, X_ORIGIN + TXT_OFFSET, Y_ORIGIN + COLUMN_HEIGHT + TXT_OFFSET);
+        g.drawString(agilityXpGained, X_ORIGIN + TXT_OFFSET, Y_ORIGIN + 2*COLUMN_HEIGHT + TXT_OFFSET);
     }
 
     //column 4
-    private void drawXPH(Graphics2D g){
+    private void drawXPH(Graphics2D g, String fishingXPH, String strXPH, String agilityXPH){
         final int X_ORIGIN = 329, Y_ORIGIN = 338, COLUMN_WIDTH = 94, FULL_COLUMN_HEIGHT = 142, COLUMN_HEIGHT = 47, TXT_OFFSET = 32;
         g.setColor(GRAY);
         g.fillRect(X_ORIGIN, Y_ORIGIN, COLUMN_WIDTH, FULL_COLUMN_HEIGHT);
         g.setColor(Color.WHITE);
 
-        g.drawString(formatValue(script.getExperienceTracker().getGainedXPPerHour(Skill.FISHING)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + TXT_OFFSET);
-        g.drawString(formatValue(script.getExperienceTracker().getGainedXPPerHour(Skill.STRENGTH)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + COLUMN_HEIGHT + TXT_OFFSET);
-        g.drawString(formatValue(script.getExperienceTracker().getGainedXPPerHour(Skill.AGILITY)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + 2*COLUMN_HEIGHT + TXT_OFFSET);
+        g.drawString(fishingXPH, X_ORIGIN + TXT_OFFSET, Y_ORIGIN + TXT_OFFSET);
+        g.drawString(strXPH, X_ORIGIN + TXT_OFFSET, Y_ORIGIN + COLUMN_HEIGHT + TXT_OFFSET);
+        g.drawString(agilityXPH, X_ORIGIN + TXT_OFFSET, Y_ORIGIN + 2*COLUMN_HEIGHT + TXT_OFFSET);
     }
 
     //column 5
-    private void drawTTL(Graphics2D g){
+    private void drawTTL(Graphics2D g, String fishingTTL, String strTTL, String agilityTTL){
         final int X_ORIGIN = 423, Y_ORIGIN = 338, COLUMN_WIDTH = 94, FULL_COLUMN_HEIGHT = 142, COLUMN_HEIGHT = 47, TXT_OFFSET = 32;
         g.setColor(GRAY);
         g.fillRect(X_ORIGIN, Y_ORIGIN, COLUMN_WIDTH, FULL_COLUMN_HEIGHT);
         g.setColor(Color.WHITE);
 
-        g.drawString(formatTime(script.getExperienceTracker().getTimeToLevel(Skill.FISHING)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + TXT_OFFSET);
-        g.drawString(formatTime(script.getExperienceTracker().getTimeToLevel(Skill.STRENGTH)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + COLUMN_HEIGHT + TXT_OFFSET);
-        g.drawString(formatTime(script.getExperienceTracker().getTimeToLevel(Skill.AGILITY)), X_ORIGIN + TXT_OFFSET, Y_ORIGIN + 2*COLUMN_HEIGHT + TXT_OFFSET);
+        g.drawString(fishingTTL, X_ORIGIN + TXT_OFFSET, Y_ORIGIN + TXT_OFFSET);
+        g.drawString(strTTL, X_ORIGIN + TXT_OFFSET, Y_ORIGIN + COLUMN_HEIGHT + TXT_OFFSET);
+        g.drawString(agilityTTL, X_ORIGIN + TXT_OFFSET, Y_ORIGIN + 2*COLUMN_HEIGHT + TXT_OFFSET);
     }
 
     private void drawRuntime(Graphics2D g){

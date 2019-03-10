@@ -10,7 +10,7 @@ import java.util.PriorityQueue;
 @ScriptManifest(author = "PayPalMeRSGP", name = MainScript.SCRIPT_NAME, info = "Barbarian Fisher used to demo PrioritizedReactiveTask", version = 0.5, logo = "")
 public class MainScript extends Script{
     private long mainThreadID = Thread.currentThread().getId();
-    static final String SCRIPT_NAME = "Barbarian_Fisher v0.97";
+    static final String SCRIPT_NAME = "Barbarian_Fisher v1.0";
     private PriorityQueue<PrioritizedReactiveTask> taskQ;
 
     @Override
@@ -47,7 +47,7 @@ public class MainScript extends Script{
     @Override
     public void pause() {
         super.pause();
-
+        PrioritizedReactiveTask.onPauseCleanUp();
     }
 
     @Override
