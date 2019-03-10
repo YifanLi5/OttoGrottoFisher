@@ -1,4 +1,5 @@
-##Threaded Grotto Fisher 
+# Threaded Grotto Fisher 
+
 A OSBot barbarian fishing script designed to test a java class (PrioritizedReactiveTask.java) that handles the dispatching of multiple threads to poll 
 for the activation of specific ingame tasks and additional threads to properly preform the aforementioned ingame actions.
 
@@ -11,7 +12,8 @@ Features:
 Requirments:
 * Barbarian fishing unlocked! 58 fishing, 15 agility, and 35 strength + unlocked barbarian rod. 
 
-##Technical Details:
+# Technical Details:
+
 Some ingame activities such as killing bosses require some attacks to be immediately avoided, this may not be possible 
 in some instances where the current action (ex: eating to restore heath) is presently executing because in a single threaded workload 
 the eating task will block until completion. My solution is to set a up a multithreaded consumer-producer with interrupt safe threads that can be
