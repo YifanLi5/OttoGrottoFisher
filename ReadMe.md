@@ -6,7 +6,7 @@ for the activation of specific ingame tasks and additional threads to properly p
 Features:
 * ~40k-50k fishing xph, 3-4k strength and agility xph. 
 * psuedo-random inventory shift click drop orders. Items dropped in Breadth first traversal order starting from any inventory slot
-* random sleeps after inventory is full to simulate AFK fishing.
+* random sleeps after inventory is full or if the fishing spot moves or if the player stop fishing to simulate AFK play.
 * stops on feather shortage
 
 Requirments:
