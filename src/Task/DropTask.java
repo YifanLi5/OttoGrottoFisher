@@ -42,6 +42,8 @@ public class DropTask extends PrioritizedReactiveTask {
             {27, 23, 26, 22, 17, 21, 25, 18, 19, 15, 24, 13, 14, 20, 16, 12, 8, 9, 10, 11, 7, 6, 4, 5, 0, 1, 2, 3}
     };
 
+    private static final int IDLE_ID = -1;
+
     public DropTask(Bot bot) {
         super(bot);
         this.p = Priority.HIGH;
@@ -74,7 +76,8 @@ public class DropTask extends PrioritizedReactiveTask {
     //drop all fish if the inventory has filled up OR almost filled up. ex: It may be preferable to not re-fish if there are only  5 slots left.
     @Override
     boolean shouldTaskActivate() {
-        return (inventory.isFull() || inventory.getEmptySlotCount() < 8) && inventory.contains("Leaping trout", "Leaping salmon", "Leaping sturgeon");
+        boolean doPrematureDrop = inventory.getEmptySlotCount() < 8 && myPlayer().getAnimation() == IDLE_ID;
+        return (inventory.isFull() || doPrematureDrop) && inventory.contains("Leaping trout", "Leaping salmon", "Leaping sturgeon");
     }
 
 }
