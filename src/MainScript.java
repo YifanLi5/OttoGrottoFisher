@@ -1,58 +1,29 @@
 import Paint.ScriptPaint;
-import Task.DropTask;
-import Task.FishingTask;
-import Task.PrioritizedReactiveTask;
+import Task.Task;
+import Task.Drop;
+import Task.Fish;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 import java.util.PriorityQueue;
 
-@ScriptManifest(author = "PayPalMeRSGP", name = MainScript.SCRIPT_NAME, info = "Barbarian Fisher used to demo PrioritizedReactiveTask", version = 0.5, logo = "")
+@ScriptManifest(author = "PayPalMeRSGP", name = "Barbarian_Fisher v2.0", info = "Barbarian Fisher used to demo PrioritizedReactiveTask", version = 2.0, logo = "")
 public class MainScript extends Script{
-    private long mainThreadID = Thread.currentThread().getId();
-    static final String SCRIPT_NAME = "Barbarian_Fisher v1.01";
-    private PriorityQueue<PrioritizedReactiveTask> taskQ;
-
     @Override
     public void onStart() throws InterruptedException {
         super.onStart();
-        taskQ = PrioritizedReactiveTask.initializeTaskQueue();
-
-        //references to these objects are not needed.
         new ScriptPaint(this);
-        new FishingTask(bot).startCheckEnqueueTaskConditionThread();
-        new DropTask(bot).startCheckEnqueueTaskConditionThread();
+
+        new Fish(this.bot);
+        new Drop(this.bot);
     }
 
     @Override
     public int onLoop() throws InterruptedException {
-        if(!taskQ.isEmpty()) {
-            PrioritizedReactiveTask currentTask = taskQ.poll();
-            currentTask.setTaskEnqueuedToFalse();
-            currentTask.startTaskRunnerThread();
-            log("Thread " + mainThreadID + " awaiting task " + currentTask.getClass().getSimpleName() + " to finish.");
-            while(currentTask.isTaskRunning()) {
-                PrioritizedReactiveTask peeked = taskQ.peek();
-                //interrupt the current task if one of greater priority is enqueued
-                if(peeked != null && peeked.getPriority().getValue() > currentTask.getPriority().getValue()) {
-                    currentTask.stopTask();
-                }
-            }
-            log("Finished task: " + currentTask.getClass().getSimpleName());
+        Task currentTask = Task.pollRunnableTasks();
+        if(currentTask != null) {
+            currentTask.run();
         }
-
-        return 1000;
-    }
-
-    @Override
-    public void pause() {
-        super.pause();
-        PrioritizedReactiveTask.onPauseCleanUp();
-    }
-
-    @Override
-    public void onExit() throws InterruptedException {
-        super.onExit();
-        PrioritizedReactiveTask.onStopCleanUp();
+        return random(1000);
     }
 }

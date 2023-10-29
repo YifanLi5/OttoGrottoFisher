@@ -19,9 +19,9 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     private final static Rectangle TOGGLE_PAINT_VISIBILITY = new Rectangle(0, 291, 47, 47);
     private boolean paintVisible = false;
     private BufferedImage str, agility, fishing;
-    private Script script;
-    private long startTime;
-    private ExperienceTracker tracker;
+    private final Script script;
+    private final long startTime;
+    private final ExperienceTracker tracker;
     public ScriptPaint(Script script){
         this.script = script;
         try {
