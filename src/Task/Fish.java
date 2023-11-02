@@ -85,7 +85,6 @@ public class Fish extends Task {
         mouse.moveOutsideScreen();
     }
 
-    // TODO: add redundancy for fish spot moving right after clicking.
     private boolean fish(NPC fishSpot) throws InterruptedException {
         if (fishSpot == null) {
             warn("fishSpot is null");
