@@ -1,4 +1,4 @@
-# Threaded Grotto Fisher 
+# Otto's Grotto Fisher
 
 A OSBot barbarian fishing script.
 
