@@ -5,9 +5,8 @@ import Task.Fish;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
-import java.util.PriorityQueue;
 
-@ScriptManifest(author = "PayPalMeRSGP", name = "Barbarian_Fisher v2.0", info = "Barbarian Fisher used to demo PrioritizedReactiveTask", version = 2.0, logo = "")
+@ScriptManifest(author = "PayPalMeRSGP", name = "Otto Grotto1", info = "k", version = 0.12, logo = "")
 public class MainScript extends Script{
     @Override
     public void onStart() throws InterruptedException {

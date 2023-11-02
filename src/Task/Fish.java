@@ -2,6 +2,9 @@ package Task;
 
 import org.osbot.rs07.Bot;
 import org.osbot.rs07.api.filter.ActionFilter;
+import org.osbot.rs07.api.filter.Filter;
+import org.osbot.rs07.api.filter.ModelFilter;
+import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.event.InteractionEvent;
 import org.osbot.rs07.utility.ConditionalSleep;
@@ -10,7 +13,10 @@ import java.util.List;
 
 public class Fish extends Task {
 
-    ActionFilter<NPC> fishingSpotFilter = new ActionFilter<>("Use-rod");
+    private final ActionFilter<NPC> fishingSpotFilter = new ActionFilter<>(ScriptConstants.USE_ROD);
+    private final Filter<NPC> visibilityFilter = Entity::isVisible;
+    private static final int FISHING_ANIM_ID = 9350;
+
     public Fish(Bot bot) {
         super(bot);
     }
@@ -27,54 +33,73 @@ public class Fish extends Task {
 
     @Override
     public void run() throws InterruptedException {
-        if(!(inventory.contains("Barbarian rod") || inventory.contains("Pearl barbarian rod"))) {
+        if (!(inventory.contains("Barbarian rod", "Pearl barbarian rod"))) {
             warn("Inventory does not contain a suitable Barbarian rod");
             bot.getScriptExecutor().stop(false);
         }
 
-        if(!(inventory.contains("Feather") || inventory.contains("Bait") || inventory.contains("Fish offcuts"))) {
-            warn("Inventory does not contain a suitable bait");
+        if (!(inventory.contains("Feather", "Bait", "Fish offcuts"))) {
+            warn("Inventory does not contain suitable bait");
             bot.getScriptExecutor().stop(false);
         }
 
-        if(inventory.isItemSelected()) {
+        if (inventory.isItemSelected()) {
             inventory.deselectItem();
         }
 
         final NPC[] fishingSpot = new NPC[1];
-        boolean fishingSpotExists = new ConditionalSleep(5000) {
+        boolean fishingSpotExists = new ConditionalSleep(2500) {
             @Override
             public boolean condition() {
-                List<NPC> fishingSpots = npcs.filter(fishingSpotFilter);
-
-                if(fishingSpots.isEmpty()) {
-                    return false;
+                List<NPC> fishingSpots = npcs.filter(fishingSpotFilter, visibilityFilter);
+                log(String.format("Found %d fishing_spots", fishingSpots.size()));
+                if (fishingSpots.isEmpty()) {
+                    log("Fishing Spot filter found nothing. Resorting to npcs.closest fallback...");
+                    fishingSpot[0] = npcs.closest(fishingSpotFilter);
+                } else {
+                    fishingSpot[0] = fishingSpots.get(random(fishingSpots.size()));
                 }
-                fishingSpot[0] = fishingSpots.get(random(fishingSpots.size()));
+
                 return fishingSpot[0] != null;
             }
         }.sleep();
 
-        if(!fishingSpotExists) {
-            warn("Could not find a fishing spot.");
+        boolean doloop = false;
+        int stuckCounter = 0;
+        do {
+            if (!fishingSpotExists) {
+                stuckCounter += 1;
+                warn(String.format("Could not find a fishing spot. %d/5", stuckCounter));
+                continue;
+            }
+            doloop = !fish(fishingSpot[0]);
+            if (doloop) {
+                warn(String.format("Script Unable to fish. %d/5", stuckCounter));
+                stuckCounter += 1;
+            }
+        } while (doloop && stuckCounter < 5);
+        if (stuckCounter >= 5) {
             bot.getScriptExecutor().stop(false);
         }
-        if(!fish(fishingSpot[0])) {
-            warn("Script Unable to fish");
-            bot.getScriptExecutor().stop(false);
-        }
+
+        mouse.moveOutsideScreen();
     }
 
-    private boolean fish(NPC fishSpot) {
+    // TODO: add redundancy for fish spot moving right after clicking.
+    private boolean fish(NPC fishSpot) throws InterruptedException {
+        if (fishSpot == null) {
+            warn("fishSpot is null");
+            return false;
+        }
         InteractionEvent fishEvent = new InteractionEvent(fishSpot, "Use-rod");
         fishEvent.setOperateCamera(false);
         execute(fishEvent);
-        new ConditionalSleep(5000) {
+        new ConditionalSleep(10000) {
             @Override
             public boolean condition() {
-                return myPlayer().isAnimating() || myPlayer().isMoving();
+                return fishEvent.hasFinished() && myPlayer().getAnimation() == FISHING_ANIM_ID;
             }
         }.sleep();
-        return fishEvent.hasFinished();
+        return myPlayer().getAnimation() == FISHING_ANIM_ID;
     }
 }
