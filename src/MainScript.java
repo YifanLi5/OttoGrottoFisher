@@ -7,7 +7,7 @@ import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 
-@ScriptManifest(author = "yfoo", name = "Otto Grotto v0.2.1", info = "k", version = 0.2, logo = "")
+@ScriptManifest(author = "yfoo", name = "Otto Grotto v0.2.2", info = "k", version = 0.2, logo = "")
 public class MainScript extends Script {
     @Override
     public void onStart() throws InterruptedException {
