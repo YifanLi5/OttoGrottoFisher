@@ -13,7 +13,6 @@ import static org.osbot.rs07.script.MethodProvider.sleep;
 
 public class ScriptPaint extends BotMouseListener implements Painter {
     private static final Color GRAY = new Color(70, 61, 50, 156);
-    private static final String IMG_FOLDER = "resources", STR = "/str.png", AGILITY = "/agility.png", FISHING = "/fishing.png";
     private final static Rectangle TOGGLE_PAINT_VISIBILITY = new Rectangle(0, 291, 47, 47);
     private boolean paintVisible = false;
     private final Script script;
@@ -73,7 +72,7 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         int gridHeight = numRows * cellHeight;
 
         // Set background color
-        g2d.setColor(new Color(70, 61, 50, 156));
+        g2d.setColor(GRAY);
         g2d.fillRect(startPoint.x, startPoint.y, gridWidth, gridHeight);
 
         // Set grid line color
