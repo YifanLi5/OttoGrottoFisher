@@ -60,7 +60,7 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         data[1][2] = String.format("%s (+%s)", startLvlFishing, tracker.getGainedLevels(Skill.FISHING));
 
         data[2][1] = String.format("+%s (%s)", formatNumber(tracker.getGainedXP(Skill.STRENGTH)), formatNumber(tracker.getGainedXPPerHour(Skill.STRENGTH)));
-        data[2][2] = String.format("+%s(+%s)", startLvlStr, tracker.getGainedLevels(Skill.STRENGTH));
+        data[2][2] = String.format("%s(+%s)", startLvlStr, tracker.getGainedLevels(Skill.STRENGTH));
 
         data[3][1] = String.format("+%s (%s)", formatNumber(tracker.getGainedXP(Skill.AGILITY)), formatNumber(tracker.getGainedXPPerHour(Skill.AGILITY)));
         data[3][2] = String.format("%s (+%s)", startLvlAgility, tracker.getGainedLevels(Skill.AGILITY));
