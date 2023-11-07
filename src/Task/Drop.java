@@ -1,16 +1,11 @@
 package Task;
 
 import org.osbot.rs07.Bot;
-import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.GroundItem;
 import org.osbot.rs07.api.model.Item;
-import org.osbot.rs07.api.ui.Tab;
-import org.osbot.rs07.event.EventQueue;
-import org.osbot.rs07.event.InteractionQueue;
 import org.osbot.rs07.input.mouse.InventorySlotDestination;
 import org.osbot.rs07.input.mouse.MouseDestination;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,9 +17,9 @@ import static java.awt.event.KeyEvent.VK_SHIFT;
 public class Drop extends Task {
     /**
      * Inventory slots visual guide
-     *  0  1  2  3
-     *  4  5  6  7
-     *  8  9 10 11
+     * 0  1  2  3
+     * 4  5  6  7
+     * 8  9 10 11
      * 12 13 14 15
      * 16 17 18 19
      * 20 21 22 23
@@ -58,22 +53,15 @@ public class Drop extends Task {
 
     @Override
     public void run() throws InterruptedException {
-        long idleTime = randomNormalDist(8000, 3000);
-
-        log(String.format("Before dropping, Idling for %dms", idleTime));
-        sleep(idleTime);
-
         customDropAll();
-
-
     }
 
     private boolean customDropAll() throws InterruptedException {
-        if(!inventory.getSlotBoundingBox(0).equals(INVENTORY_SLOT_DESTINATION_MAPPING.get(0).getBoundingBox())) {
+        if (!inventory.getSlotBoundingBox(0).equals(INVENTORY_SLOT_DESTINATION_MAPPING.get(0).getBoundingBox())) {
             warn("inventory slots bounding boxes no longer correct. Attempting to remap inventory slots.");
             mapInvSlotDestinations();
         }
-        if(!inventory.getSlotBoundingBox(0).equals(INVENTORY_SLOT_DESTINATION_MAPPING.get(0).getBoundingBox())) {
+        if (!inventory.getSlotBoundingBox(0).equals(INVENTORY_SLOT_DESTINATION_MAPPING.get(0).getBoundingBox())) {
             warn("inventory slots bounding boxes no longer correct even after remap operation. " +
                     "Was the client window resized?");
             bot.getScriptExecutor().stop(false);
@@ -82,38 +70,36 @@ public class Drop extends Task {
         long preDrop = inventory.getAmount(BAITS);
 
         ArrayList<MouseDestination> destinations = new ArrayList<>();
-        for(int invSlot: DROP_ORDERS[random(0,DROP_ORDERS.length-1)]) {
+        for (int invSlot : DROP_ORDERS[random(0, DROP_ORDERS.length - 1)]) {
             Item itemAtInvSlot = inventory.getItemInSlot(invSlot);
-            if(itemAtInvSlot == null || itemAtInvSlot.nameContains(DO_NOT_DROP) || random(100) <= 3) {
-                continue;
+            if (itemAtInvSlot != null && itemAtInvSlot.nameContains(BARBARIAN_FISH) && random(100) > 3) {
+                destinations.add(INVENTORY_SLOT_DESTINATION_MAPPING.get(invSlot));
             }
-
-            destinations.add(INVENTORY_SLOT_DESTINATION_MAPPING.get(invSlot));
         }
 
-        if(inventory.isItemSelected()) {
+        if (inventory.isItemSelected()) {
             inventory.deselectItem();
         }
 
         keyboard.pressKey(VK_SHIFT);
-        for(MouseDestination d: destinations) {
+        for (MouseDestination d : destinations) {
             mouse.click(d);
-            if(random(100) == 1) {
+            if (random(100) == 1) {
                 mouse.click(false);
             }
         }
         keyboard.releaseKey(VK_SHIFT);
         sleep(random(500, 1000));
-        if(inventory.contains(BARBARIAN_FISH)) {
+        if (inventory.contains(BARBARIAN_FISH)) {
             inventory.dropAllExcept(DO_NOT_DROP);
         }
 
         long postDrop = inventory.getAmount(BAITS);
-        if(postDrop < preDrop) {
+        if (postDrop < preDrop) {
             warn("Uh Oh, did the bait get dropped???");
             List<GroundItem> droppedItem = groundItems.filter(groundItem -> groundItem.getAmount() == preDrop - postDrop &&
                     Arrays.stream(BAITS).anyMatch(bait -> groundItem.getName().equals(bait)));
-            if(droppedItem.isEmpty()) {
+            if (droppedItem.isEmpty()) {
                 log("Didn't find the dropped bait...");
             }
         }
@@ -122,7 +108,7 @@ public class Drop extends Task {
     }
 
     private void mapInvSlotDestinations() {
-        for(int i = 0; i < 28; i++) {
+        for (int i = 0; i < 28; i++) {
             INVENTORY_SLOT_DESTINATION_MAPPING.put(i, new InventorySlotDestination(bot, i));
         }
     }

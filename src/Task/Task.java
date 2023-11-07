@@ -9,10 +9,12 @@ import java.util.Random;
 public abstract class Task extends MethodProvider {
     static ArrayList<Task> subclassInstances = new ArrayList<>();
     static final int IDLE_ID = -1;
+
     public Task(Bot bot) {
         exchangeContext(bot);
         subclassInstances.add(this);
     }
+
     abstract boolean shouldRun();
 
     public abstract void run() throws InterruptedException;
@@ -21,31 +23,31 @@ public abstract class Task extends MethodProvider {
         return 1;
     }
 
-    long randomNormalDist(double mean, double stddev){
-        return (long) Math.abs((new Random().nextGaussian() * stddev + mean));
+    int randomNormalDist(double mean, double stddev) {
+        return (int) Math.abs((new Random().nextGaussian() * stddev + mean));
     }
 
 
     public static Task pollRunnableTasks() {
         int weightingSum = 0;
         ArrayList<Task> runnableTasks = new ArrayList<>();
-        for(Task task: Task.subclassInstances) {
-            if(task.shouldRun()) {
+        for (Task task : Task.subclassInstances) {
+            if (task.shouldRun()) {
                 runnableTasks.add(task);
                 weightingSum += task.probabilityWeight();
             }
         }
-        if(runnableTasks.isEmpty()) {
+        if (runnableTasks.isEmpty()) {
             return null;
         } else if (runnableTasks.size() == 1) {
-           return runnableTasks.get(0);
+            return runnableTasks.get(0);
         }
 
         int roll = random(weightingSum);
         int idx = 0;
-        for(; idx < runnableTasks.size(); idx++) {
+        for (; idx < runnableTasks.size(); idx++) {
             roll -= runnableTasks.get(idx).probabilityWeight();
-            if(roll < 0) {
+            if (roll < 0) {
                 break;
             }
         }

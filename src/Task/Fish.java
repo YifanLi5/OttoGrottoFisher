@@ -3,7 +3,6 @@ package Task;
 import org.osbot.rs07.Bot;
 import org.osbot.rs07.api.filter.ActionFilter;
 import org.osbot.rs07.api.filter.Filter;
-import org.osbot.rs07.api.filter.ModelFilter;
 import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.event.InteractionEvent;
@@ -11,11 +10,13 @@ import org.osbot.rs07.utility.ConditionalSleep;
 
 import java.util.List;
 
+import static Task.ScriptConstants.FISHING_ANIM_ID;
+
 public class Fish extends Task {
 
     private final ActionFilter<NPC> fishingSpotFilter = new ActionFilter<>(ScriptConstants.USE_ROD);
     private final Filter<NPC> visibilityFilter = Entity::isVisible;
-    private static final int FISHING_ANIM_ID = 9350;
+
 
     public Fish(Bot bot) {
         super(bot);

@@ -1,13 +1,14 @@
 import Paint.ScriptPaint;
-import Task.Task;
 import Task.Drop;
 import Task.Fish;
+import Task.Idle;
+import Task.Task;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 
-@ScriptManifest(author = "PayPalMeRSGP", name = "Otto Grotto1", info = "k", version = 0.12, logo = "")
-public class MainScript extends Script{
+@ScriptManifest(author = "yfoo", name = "Otto Grotto v0.2.1", info = "k", version = 0.2, logo = "")
+public class MainScript extends Script {
     @Override
     public void onStart() throws InterruptedException {
         super.onStart();
@@ -15,12 +16,13 @@ public class MainScript extends Script{
 
         new Fish(this.bot);
         new Drop(this.bot);
+        new Idle(this.bot);
     }
 
     @Override
     public int onLoop() throws InterruptedException {
         Task currentTask = Task.pollRunnableTasks();
-        if(currentTask != null) {
+        if (currentTask != null) {
             currentTask.run();
         }
         return random(1000);
