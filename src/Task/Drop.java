@@ -72,7 +72,9 @@ public class Drop extends Task {
         ArrayList<MouseDestination> destinations = new ArrayList<>();
         for (int invSlot : DROP_ORDERS[random(0, DROP_ORDERS.length - 1)]) {
             Item itemAtInvSlot = inventory.getItemInSlot(invSlot);
-            if (itemAtInvSlot != null && itemAtInvSlot.nameContains(BARBARIAN_FISH) && random(100) > 3) {
+            if(itemAtInvSlot == null || itemAtInvSlot.nameContains(DO_NOT_DROP) || random(100) <= 3) {
+                continue;
+            } else if (itemAtInvSlot.nameContains(BARBARIAN_FISH)) {
                 destinations.add(INVENTORY_SLOT_DESTINATION_MAPPING.get(invSlot));
             }
         }
@@ -91,7 +93,7 @@ public class Drop extends Task {
         keyboard.releaseKey(VK_SHIFT);
         sleep(random(500, 1000));
         if (inventory.contains(BARBARIAN_FISH)) {
-            inventory.dropAllExcept(DO_NOT_DROP);
+            inventory.drop(BARBARIAN_FISH);
         }
 
         long postDrop = inventory.getAmount(BAITS);
