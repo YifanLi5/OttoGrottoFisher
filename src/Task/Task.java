@@ -23,7 +23,7 @@ public abstract class Task extends MethodProvider {
         return 1;
     }
 
-    int randomNormalDist(double mean, double stddev) {
+    int randomGaussian(double mean, double stddev) {
         return (int) Math.abs((new Random().nextGaussian() * stddev + mean));
     }
 
