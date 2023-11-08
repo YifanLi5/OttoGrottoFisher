@@ -19,12 +19,12 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     private final long startTime;
     private final ExperienceTracker tracker;
 
-    private int startLvlFishing;
-    private int startLvlStr;
-    private int startLvlAgility;
+    private final int startLvlFishing;
+    private final int startLvlStr;
+    private final int startLvlAgility;
 
     String[][] data = {
-            {"", "+XP (XPH)", "LVL (+)"},
+            {"", "+XP (XP/H)", "LVL (+)"},
             {"Fishing", "", ""},
             {"Strength", "", ""},
             {"Agility", "", ""}
@@ -51,7 +51,7 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     public void onPaint(Graphics2D g2d) {
         drawMouse(g2d);
         populateDataGrid();
-        drawExcelGrid(g2d, 150, 75, new Point(100, 100));
+        drawExcelGrid(g2d, data, 100, 50, new Point(0, 0));
     }
 
     private void populateDataGrid() {
@@ -59,38 +59,33 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         data[1][2] = String.format("%s (+%s)", startLvlFishing, tracker.getGainedLevels(Skill.FISHING));
 
         data[2][1] = String.format("+%s (%s)", formatNumber(tracker.getGainedXP(Skill.STRENGTH)), formatNumber(tracker.getGainedXPPerHour(Skill.STRENGTH)));
-        data[2][2] = String.format("%s(+%s)", startLvlStr, tracker.getGainedLevels(Skill.STRENGTH));
+        data[2][2] = String.format("%s (+%s)", startLvlStr, tracker.getGainedLevels(Skill.STRENGTH));
 
-        data[3][1] = String.format("+%s (%s)", formatNumber(tracker.getGainedXP(Skill.AGILITY)), formatNumber(tracker.getGainedXPPerHour(Skill.AGILITY)));
+        data[3][1] = "^";
         data[3][2] = String.format("%s (+%s)", startLvlAgility, tracker.getGainedLevels(Skill.AGILITY));
     }
 
-    private void drawExcelGrid(Graphics2D g2d, int cellWidth, int cellHeight, Point startPoint) {
+    private void drawExcelGrid(Graphics2D g2d, String[][] data, int cellWidth, int cellHeight, Point startPoint) {
         int numRows = data.length;
         int numCols = data[0].length;
         int gridWidth = numCols * cellWidth;
         int gridHeight = numRows * cellHeight;
 
-        // Set background color
         g2d.setColor(GRAY);
         g2d.fillRect(startPoint.x, startPoint.y, gridWidth, gridHeight);
 
-        // Set grid line color
         g2d.setColor(Color.WHITE);
 
-        // Draw horizontal grid lines
         for (int i = 0; i <= numRows; i++) {
             int y = startPoint.y + i * cellHeight;
             g2d.drawLine(startPoint.x, y, startPoint.x + gridWidth, y);
         }
 
-        // Draw vertical grid lines
         for (int i = 0; i <= numCols; i++) {
             int x = startPoint.x + i * cellWidth;
             g2d.drawLine(x, startPoint.y, x, startPoint.y + gridHeight);
         }
 
-        // Draw data in cells
         Font font = new Font("Arial", Font.PLAIN, 14);
         g2d.setFont(font);
 
