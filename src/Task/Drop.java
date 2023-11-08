@@ -94,6 +94,7 @@ public class Drop extends Task {
         sleep(random(500, 1000));
         if (inventory.contains(BARBARIAN_FISH)) {
             inventory.dropAll(BARBARIAN_FISH);
+
         }
 
         long postDrop = inventory.getAmount(BAITS);

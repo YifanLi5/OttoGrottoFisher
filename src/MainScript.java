@@ -9,7 +9,6 @@ import org.osbot.rs07.script.ScriptManifest;
 import static Task.ScriptConstants.sessionMean;
 import static Task.ScriptConstants.sessionStdDev;
 
-
 @ScriptManifest(author = "yfoo", name = "Otto Grotto v0.2.2", info = "k", version = 0.2, logo = "")
 public class MainScript extends Script {
     @Override
