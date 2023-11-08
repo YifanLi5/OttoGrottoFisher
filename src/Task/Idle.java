@@ -5,7 +5,7 @@ import org.osbot.rs07.input.mouse.MouseDestination;
 import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
 
-import static Task.ScriptConstants.FISHING_ANIM_ID;
+import static Task.ScriptConstants.*;
 
 public class Idle extends Task {
 
@@ -30,9 +30,11 @@ public class Idle extends Task {
         shiftBottlesUp();
         log("Idling...");
         sleepWhileFishing.sleep();
-        long idleTime = randomNormalDist(8000, 3000);
-        log(String.format("Simulating AFK for %dms", idleTime));
-        sleep(idleTime);
+        if(myPlayer().getAnimation() == -1) {
+            long idleTime = randomGaussian(sessionMean, sessionStdDev);
+            log(String.format("Simulating AFK for %dms", idleTime));
+            sleep(idleTime);
+        }
     }
 
     // Swap clue bottles to first slot occupied by a fish

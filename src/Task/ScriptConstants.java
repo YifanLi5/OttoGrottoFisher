@@ -1,5 +1,7 @@
 package Task;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class ScriptConstants {
     public static final int FISHING_ANIM_ID = 9350;
     public final static String[] BARBARIAN_FISH = {"Leaping trout", "Leaping salmon", "Leaping sturgeon"};
@@ -9,4 +11,14 @@ public class ScriptConstants {
     public final static String[] BAITS = {"Feather", "Bait", "Fish offcuts"};
 
     public final static String USE_ROD = "Use-rod";
+
+    public static int sessionMean;
+
+    public static int sessionStdDev;
+
+    static {
+        sessionMean = ThreadLocalRandom.current().nextInt(7500, 15000);
+        sessionStdDev = ThreadLocalRandom.current().nextInt(3000, 6000);
+    }
+
 }
