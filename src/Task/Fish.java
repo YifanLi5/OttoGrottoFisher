@@ -14,7 +14,7 @@ import static Task.ScriptConstants.FISHING_ANIM_ID;
 public class Fish extends Task {
 
     private final ActionFilter<NPC> fishingSpotFilter = new ActionFilter<>(ScriptConstants.USE_ROD);
-    private final Filter<NPC> closeAndVisibleFilter = npc -> npc.isVisible() && npc.getPosition().distance(myPlayer().getPosition()) <= 8;
+    private final Filter<NPC> closeAndVisibleFilter = npc -> npc.isVisible() && npc.getPosition().distance(myPlayer().getPosition()) <= 5;
 
     public Fish(Bot bot) {
         super(bot);
@@ -46,6 +46,10 @@ public class Fish extends Task {
             inventory.deselectItem();
         }
 
+        if (equipment.isWieldingWeapon("Dragon harpoon") && combat.getSpecialPercentage() == 100) {
+            combat.toggleSpecialAttack(true);
+        }
+
         final NPC[] fishingSpot = new NPC[1];
         boolean fishingSpotExists = new ConditionalSleep(2500) {
             @Override
@@ -73,7 +77,7 @@ public class Fish extends Task {
             }
             doloop = !fish(fishingSpot[0]);
             if (doloop) {
-                warn(String.format("Script Unable to fish. %d/5", stuckCounter));
+                warn(String.format("Script Unable to fish. Retrying... %d/5", stuckCounter));
                 stuckCounter += 1;
             }
         } while (doloop && stuckCounter < 5);
