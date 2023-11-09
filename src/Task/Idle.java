@@ -30,7 +30,7 @@ public class Idle extends Task {
         shiftBottlesUp();
         log("Idling...");
         sleepWhileFishing.sleep();
-        if(myPlayer().getAnimation() == -1) {
+        if (myPlayer().getAnimation() == -1) {
             long idleTime = randomGaussian(sessionMean, sessionStdDev);
             log(String.format("Simulating AFK for %dms", idleTime));
             sleep(idleTime);
