@@ -9,8 +9,6 @@ import org.osbot.rs07.script.Script;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-import static org.osbot.rs07.script.MethodProvider.sleep;
-
 public class ScriptPaint extends BotMouseListener implements Painter {
     private static final Color GRAY = new Color(70, 61, 50, 156);
     private final static Rectangle TOGGLE_PAINT_VISIBILITY = new Rectangle(0, 291, 47, 47);
@@ -101,23 +99,13 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     }
 
     private String formatNumber(int number) {
-        double roundedNumber = Math.floor(number / 100.0) * 100.0;
-        if (roundedNumber >= 1000) {
-            int thousands = (int) (roundedNumber / 1000);
-            double hundreds = (roundedNumber % 1000) / 100.0;
-            if (hundreds == 0) {
-                return thousands + "k";
-            } else {
-                return String.format("%.1fk", thousands + hundreds);
-            }
-        } else {
-            return Integer.toString(number);
+        if(number < 1000) {
+            return String.valueOf(number);
         }
+        int numKs = number / 1000;
+        int hundreds = (number - numKs * 1000) / 100;
+        return String.format("%d.%dk", numKs, hundreds);
     }
-
-
-
-
 
 
     @Override
