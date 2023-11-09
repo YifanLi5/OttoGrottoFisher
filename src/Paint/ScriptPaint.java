@@ -1,5 +1,6 @@
 package Paint;
 
+import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.util.ExperienceTracker;
 import org.osbot.rs07.canvas.paint.Painter;
@@ -21,15 +22,30 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     private final int startLvlStr;
     private final int startLvlAgility;
 
-    String[][] data = {
+    private Rectangle ReportBtnBox;
+
+    private Point xpTableOrigin;
+
+    private final String[][] data = {
             {"", "+XP (XP/H)", "LVL (+)"},
             {"Fishing", "", ""},
             {"Strength", "", ""},
             {"Agility", "", ""}
     };
 
+    private final int cellWidth = 100;
+    private final int cellHeight = 50;
+
     public ScriptPaint(Script script) {
         this.script = script;
+
+        RS2Widget reportBtn = script.widgets.get(162, 31);
+        ReportBtnBox = reportBtn.getBounds();
+
+        RS2Widget rsLog = script.widgets.get(162, 53);
+        int debug = rsLog.getBounds().y - data.length * cellHeight;
+        script.log("debug: " + debug);
+        xpTableOrigin = new Point(0, rsLog.getBounds().y - data.length * cellHeight);
 
         script.getBot().addPainter(this);
         script.getBot().addMouseListener(this);
@@ -49,7 +65,8 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     public void onPaint(Graphics2D g2d) {
         drawMouse(g2d);
         populateDataGrid();
-        drawExcelGrid(g2d, data, 100, 50, new Point(0, 0));
+        drawExcelGrid(g2d, data, cellWidth, cellHeight, xpTableOrigin);
+        drawRuntime(g2d, ReportBtnBox);
     }
 
     private void populateDataGrid() {
@@ -96,6 +113,23 @@ public class ScriptPaint extends BotMouseListener implements Painter {
                 g2d.drawString(cellData, x, y);
             }
         }
+    }
+
+    public void drawRuntime(Graphics2D g2d, Rectangle rect) {
+        g2d.setColor(new Color(235, 25, 25, 156));
+        g2d.fillRect(rect.x, rect.y, rect.width, rect.height);
+        FontMetrics metrics = g2d.getFontMetrics();
+        String runtime = String.valueOf(formatTime(System.currentTimeMillis() - startTime));
+        int x = rect.x + (rect.width - metrics.stringWidth(runtime)) / 2;
+        int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(runtime, x, y);
+    }
+
+    private String formatTime(final long ms){
+        long s = ms / 1000, m = s / 60, h = m / 60;
+        s %= 60; m %= 60; h %= 24;
+        return String.format("%02d:%02d:%02d", h, m, s);
     }
 
     private String formatNumber(int number) {
