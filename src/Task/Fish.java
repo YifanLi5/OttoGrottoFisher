@@ -15,8 +15,7 @@ import static Task.ScriptConstants.FISHING_ANIM_ID;
 public class Fish extends Task {
 
     private final ActionFilter<NPC> fishingSpotFilter = new ActionFilter<>(ScriptConstants.USE_ROD);
-    private final Filter<NPC> visibilityFilter = Entity::isVisible;
-
+    private final Filter<NPC> closeAndVisibleFilter = npc -> npc.isVisible() && npc.getPosition().distance(myPlayer().getPosition()) <= 8;
 
     public Fish(Bot bot) {
         super(bot);
@@ -52,7 +51,7 @@ public class Fish extends Task {
         boolean fishingSpotExists = new ConditionalSleep(2500) {
             @Override
             public boolean condition() {
-                List<NPC> fishingSpots = npcs.filter(fishingSpotFilter, visibilityFilter);
+                List<NPC> fishingSpots = npcs.filter(fishingSpotFilter, closeAndVisibleFilter);
                 log(String.format("Found %d fishing_spots", fishingSpots.size()));
                 if (fishingSpots.isEmpty()) {
                     log("Fishing Spot filter found nothing. Resorting to npcs.closest fallback...");
