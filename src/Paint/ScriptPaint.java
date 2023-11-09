@@ -43,8 +43,6 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         ReportBtnBox = reportBtn.getBounds();
 
         RS2Widget rsLog = script.widgets.get(162, 53);
-        int debug = rsLog.getBounds().y - data.length * cellHeight;
-        script.log("debug: " + debug);
         xpTableOrigin = new Point(0, rsLog.getBounds().y - data.length * cellHeight);
 
         script.getBot().addPainter(this);
