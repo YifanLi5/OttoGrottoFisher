@@ -12,9 +12,9 @@ public class ScriptConstants {
 
     public final static String USE_ROD = "Use-rod";
 
-    public static int sessionMean;
+    public static final int sessionMean;
 
-    public static int sessionStdDev;
+    public static final int sessionStdDev;
 
     static {
         sessionMean = ThreadLocalRandom.current().nextInt(7500, 15000);

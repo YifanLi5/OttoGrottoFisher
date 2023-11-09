@@ -3,7 +3,6 @@ package Task;
 import org.osbot.rs07.Bot;
 import org.osbot.rs07.api.filter.ActionFilter;
 import org.osbot.rs07.api.filter.Filter;
-import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.event.InteractionEvent;
 import org.osbot.rs07.utility.ConditionalSleep;
@@ -85,7 +84,7 @@ public class Fish extends Task {
         mouse.moveOutsideScreen();
     }
 
-    private boolean fish(NPC fishSpot) throws InterruptedException {
+    private boolean fish(NPC fishSpot) {
         if (fishSpot == null) {
             warn("fishSpot is null");
             return false;

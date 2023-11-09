@@ -22,9 +22,9 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     private final int startLvlStr;
     private final int startLvlAgility;
 
-    private Rectangle ReportBtnBox;
+    private final Rectangle ReportBtnBox;
 
-    private Point xpTableOrigin;
+    private final Point xpTableOrigin;
 
     private final String[][] data = {
             {"", "+XP (XP/H)", "LVL (+)"},
@@ -126,14 +126,16 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         g2d.drawString(runtime, x, y);
     }
 
-    private String formatTime(final long ms){
+    private String formatTime(final long ms) {
         long s = ms / 1000, m = s / 60, h = m / 60;
-        s %= 60; m %= 60; h %= 24;
+        s %= 60;
+        m %= 60;
+        h %= 24;
         return String.format("%02d:%02d:%02d", h, m, s);
     }
 
     private String formatNumber(int number) {
-        if(number < 1000) {
+        if (number < 1000) {
             return String.valueOf(number);
         }
         int numKs = number / 1000;
