@@ -17,7 +17,7 @@ public abstract class Task extends MethodProvider {
 
     abstract boolean shouldRun();
 
-    public abstract void run() throws InterruptedException;
+    public abstract void runTask() throws InterruptedException;
 
     int probabilityWeight() {
         return 1;

@@ -21,29 +21,20 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     private final int startLvlStr;
     private final int startLvlAgility;
 
-    private final Rectangle ReportBtnBox;
-
-    private final Point xpTableOrigin;
-
     private final String[][] data = {
-            {"", "+XP (XP/H)", "LVL (+)"},
-            {"Fishing", "", ""},
-            {"Strength", "", ""},
-            {"Agility", "", ""}
+        {"", "+XP (XP/H)", "LVL (+)"},
+        {"Fishing", "", ""},
+        {"Strength", "", ""},
+        {"Agility", "", ""}
     };
 
     private final int cellWidth = 100;
     private final int cellHeight = 50;
 
+    private final Rectangle runtimeRect = new Rectangle(0, cellHeight * data.length, cellWidth * data[0].length, 25);
+
     public ScriptPaint(Script script) {
         this.script = script;
-
-        RS2Widget reportBtn = script.widgets.get(162, 31);
-        ReportBtnBox = reportBtn.getBounds();
-
-        RS2Widget rsLog = script.widgets.get(162, 53);
-        xpTableOrigin = new Point(0, rsLog.getBounds().y - data.length * cellHeight);
-
         script.getBot().addPainter(this);
         script.getBot().addMouseListener(this);
 
@@ -62,8 +53,8 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     public void onPaint(Graphics2D g2d) {
         drawMouse(g2d);
         populateDataGrid();
-        drawXpGrid(g2d, data, cellWidth, cellHeight, xpTableOrigin, showPaint);
-        drawRuntime(g2d, ReportBtnBox);
+        drawXpGrid(g2d, data, 0, 0, cellWidth, cellHeight, showPaint);
+        drawRuntime(g2d, runtimeRect, showPaint);
     }
 
     private void populateDataGrid() {
@@ -80,16 +71,17 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     private void drawXpGrid(
             Graphics2D g2d,
             String[][] data,
+            int originX,
+            int originY,
             int cellWidth,
             int cellHeight,
-            Point startPoint,
             boolean showPaint
     ) {
 
         if(showPaint) {
-            data[0][0] = "Hide";
+            data[0][0] = "--Hide--";
         } else {
-            data = new String[][]{{"Show"}};
+            data = new String[][]{{"--Show--"}};
         }
         int numRows = data.length;
         int numCols = data[0].length;
@@ -97,18 +89,18 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         int gridHeight = numRows * cellHeight;
 
         g2d.setColor(GRAY);
-        g2d.fillRect(startPoint.x, startPoint.y, gridWidth, gridHeight);
+        g2d.fillRect(originX, originY, gridWidth, gridHeight);
 
         g2d.setColor(Color.WHITE);
 
         for (int i = 0; i <= numRows; i++) {
-            int y = startPoint.y + i * cellHeight;
-            g2d.drawLine(startPoint.x, y, startPoint.x + gridWidth, y);
+            int y = originY + i * cellHeight;
+            g2d.drawLine(originX, y, originX + gridWidth, y);
         }
 
         for (int i = 0; i <= numCols; i++) {
-            int x = startPoint.x + i * cellWidth;
-            g2d.drawLine(x, startPoint.y, x, startPoint.y + gridHeight);
+            int x = originX + i * cellWidth;
+            g2d.drawLine(x, originY, x, originY + gridHeight);
         }
 
         Font font = new Font("Arial", Font.PLAIN, 14);
@@ -117,23 +109,27 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         for (int i = 0; i < numRows; i++) {
             for (int j = 0; j < numCols; j++) {
                 String cellData = data[i][j];
-                int x = startPoint.x + j * cellWidth + (cellWidth - g2d.getFontMetrics().stringWidth(cellData)) / 2;
-                int y = startPoint.y + i * cellHeight + (cellHeight - g2d.getFontMetrics().getHeight()) / 2
+                int x = originX + j * cellWidth + (cellWidth - g2d.getFontMetrics().stringWidth(cellData)) / 2;
+                int y = originY + i * cellHeight + (cellHeight - g2d.getFontMetrics().getHeight()) / 2
                         + g2d.getFontMetrics().getAscent();
                 g2d.drawString(cellData, x, y);
             }
         }
     }
 
-    public void drawRuntime(Graphics2D g2d, Rectangle rect) {
-        g2d.setColor(new Color(235, 25, 25, 156));
-        g2d.fillRect(rect.x, rect.y, rect.width, rect.height);
+    public void drawRuntime(Graphics2D g2d, Rectangle rect, boolean showPaint) {
+        if(!showPaint) {
+            return;
+        }
+        g2d.setColor(GRAY);
+        g2d.fill(rect);
         FontMetrics metrics = g2d.getFontMetrics();
         String runtime = formatTime(System.currentTimeMillis() - startTime);
         int x = rect.x + (rect.width - metrics.stringWidth(runtime)) / 2;
         int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
         g2d.setColor(Color.WHITE);
         g2d.drawString(runtime, x, y);
+        g2d.draw(rect);
     }
 
     private String formatTime(final long ms) {
@@ -158,7 +154,7 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     public void checkMouseEvent(MouseEvent mouseEvent) {
         if (mouseEvent.getID() == MouseEvent.MOUSE_PRESSED) {
             Point clickPt = mouseEvent.getPoint();
-            if (new Rectangle(xpTableOrigin.x, xpTableOrigin.y, cellWidth, cellHeight).contains(clickPt)) {
+            if (new Rectangle(0, 0, cellWidth, cellHeight).contains(clickPt)) {
                 showPaint = !showPaint;
                 mouseEvent.consume();
             }

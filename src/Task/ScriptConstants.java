@@ -12,13 +12,17 @@ public class ScriptConstants {
 
     public final static String USE_ROD = "Use-rod";
 
-    public static final int sessionMean;
+    public static final int SESSION_MEAN;
 
-    public static final int sessionStdDev;
+    public static final int SESSION_STD_DEV;
+
+    public static final int SESSION_DROP_SKIP;
 
     static {
-        sessionMean = ThreadLocalRandom.current().nextInt(7500, 15000);
-        sessionStdDev = ThreadLocalRandom.current().nextInt(3000, 6000);
+        ThreadLocalRandom current = ThreadLocalRandom.current();
+        SESSION_MEAN = current.nextInt(7500, 10000);
+        SESSION_STD_DEV = current.nextInt(1500, 3000);
+        SESSION_DROP_SKIP = current.nextInt(30);
     }
 
 }

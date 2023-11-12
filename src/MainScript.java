@@ -6,16 +6,15 @@ import Task.Task;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
-import static Task.ScriptConstants.sessionMean;
-import static Task.ScriptConstants.sessionStdDev;
+import static Task.ScriptConstants.*;
 
-@ScriptManifest(author = "yfoo", name = "Otto Grotto v1", info = "Barbarian Fishing Script", version = 1.0, logo = "")
+@ScriptManifest(author = "yfoo", name = "Otto Grotto", info = "Barbarian Fishing Script", version = 1.0, logo = "")
 public class MainScript extends Script {
     @Override
     public void onStart() throws InterruptedException {
         super.onStart();
         new ScriptPaint(this);
-        log(String.format("Using Mean: %d, Std_dev: %d for idles.", sessionMean, sessionStdDev));
+        log(String.format("Using Mean: %dms, Std_dev: %dms for idles. Shift drop miss rate: %d/1000", SESSION_MEAN, SESSION_STD_DEV, SESSION_DROP_SKIP));
         new Fish(this.bot);
         new Drop(this.bot);
         new Idle(this.bot);
@@ -25,7 +24,7 @@ public class MainScript extends Script {
     public int onLoop() throws InterruptedException {
         Task currentTask = Task.pollRunnableTasks();
         if (currentTask != null) {
-            currentTask.run();
+            currentTask.runTask();
         }
         return random(1000);
     }

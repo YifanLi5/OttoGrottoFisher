@@ -52,7 +52,7 @@ public class Drop extends Task {
     }
 
     @Override
-    public void run() throws InterruptedException {
+    public void runTask() throws InterruptedException {
         customDropAll();
     }
 
@@ -72,7 +72,7 @@ public class Drop extends Task {
         ArrayList<MouseDestination> destinations = new ArrayList<>();
         for (int invSlot : DROP_ORDERS[random(0, DROP_ORDERS.length - 1)]) {
             Item itemAtInvSlot = inventory.getItemInSlot(invSlot);
-            if (itemAtInvSlot == null || itemAtInvSlot.nameContains(DO_NOT_DROP) || random(100) <= 3) {
+            if (itemAtInvSlot == null || itemAtInvSlot.nameContains(DO_NOT_DROP) || random(1000) <= SESSION_DROP_SKIP) {
                 continue;
             } else if (itemAtInvSlot.nameContains(BARBARIAN_FISH)) {
                 destinations.add(INVENTORY_SLOT_DESTINATION_MAPPING.get(invSlot));

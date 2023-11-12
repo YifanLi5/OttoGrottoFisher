@@ -26,12 +26,12 @@ public class Idle extends Task {
     }
 
     @Override
-    public void run() throws InterruptedException {
+    public void runTask() throws InterruptedException {
         shiftBottlesUp();
         log("Idling...");
         sleepWhileFishing.sleep();
         if (myPlayer().getAnimation() == -1) {
-            long idleTime = randomGaussian(sessionMean, sessionStdDev);
+            long idleTime = randomGaussian(SESSION_MEAN, SESSION_STD_DEV);
             log(String.format("Simulating AFK for %dms", idleTime));
             sleep(idleTime);
         }
