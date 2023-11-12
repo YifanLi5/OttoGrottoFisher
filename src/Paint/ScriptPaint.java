@@ -12,8 +12,7 @@ import java.awt.event.MouseEvent;
 
 public class ScriptPaint extends BotMouseListener implements Painter {
     private static final Color GRAY = new Color(70, 61, 50, 156);
-    private final static Rectangle TOGGLE_PAINT_VISIBILITY = new Rectangle(0, 291, 47, 47);
-    private boolean paintVisible = false;
+    private boolean showPaint = true;
     private final Script script;
     private final long startTime;
     private final ExperienceTracker tracker;
@@ -63,7 +62,7 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     public void onPaint(Graphics2D g2d) {
         drawMouse(g2d);
         populateDataGrid();
-        drawExcelGrid(g2d, data, cellWidth, cellHeight, xpTableOrigin);
+        drawXpGrid(g2d, data, cellWidth, cellHeight, xpTableOrigin, showPaint);
         drawRuntime(g2d, ReportBtnBox);
     }
 
@@ -78,7 +77,20 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         data[3][2] = String.format("%s (+%s)", startLvlAgility, tracker.getGainedLevels(Skill.AGILITY));
     }
 
-    private void drawExcelGrid(Graphics2D g2d, String[][] data, int cellWidth, int cellHeight, Point startPoint) {
+    private void drawXpGrid(
+            Graphics2D g2d,
+            String[][] data,
+            int cellWidth,
+            int cellHeight,
+            Point startPoint,
+            boolean showPaint
+    ) {
+
+        if(showPaint) {
+            data[0][0] = "Hide";
+        } else {
+            data = new String[][]{{"Show"}};
+        }
         int numRows = data.length;
         int numCols = data[0].length;
         int gridWidth = numCols * cellWidth;
@@ -117,7 +129,7 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         g2d.setColor(new Color(235, 25, 25, 156));
         g2d.fillRect(rect.x, rect.y, rect.width, rect.height);
         FontMetrics metrics = g2d.getFontMetrics();
-        String runtime = String.valueOf(formatTime(System.currentTimeMillis() - startTime));
+        String runtime = formatTime(System.currentTimeMillis() - startTime);
         int x = rect.x + (rect.width - metrics.stringWidth(runtime)) / 2;
         int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
         g2d.setColor(Color.WHITE);
@@ -146,8 +158,8 @@ public class ScriptPaint extends BotMouseListener implements Painter {
     public void checkMouseEvent(MouseEvent mouseEvent) {
         if (mouseEvent.getID() == MouseEvent.MOUSE_PRESSED) {
             Point clickPt = mouseEvent.getPoint();
-            if (TOGGLE_PAINT_VISIBILITY.contains(clickPt)) {
-                paintVisible = !paintVisible;
+            if (new Rectangle(xpTableOrigin.x, xpTableOrigin.y, cellWidth, cellHeight).contains(clickPt)) {
+                showPaint = !showPaint;
                 mouseEvent.consume();
             }
         }
