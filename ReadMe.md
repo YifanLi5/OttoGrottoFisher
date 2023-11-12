@@ -6,11 +6,11 @@ Start with bait/feathers + barbarian fishing rod (or pearl variant)
 ### Features:
 
 * ~20k-55k fishing xph, ~2.5-5.5k strength and agility xph. (Lvl Based)
-* random inventory shift click drop orders.
+* Random inventory shift click drop orders.
 * AFK simulation: Mouse offscreen/random AFKs if inventory is full or if the fishing spot moved.
 * Dragon Harpoon special (If equipped)
 * Saves Clue bottles
-* stops on feather/bait shortage
+* Stops on feather/bait shortage
 
 ### Requirements:
 
