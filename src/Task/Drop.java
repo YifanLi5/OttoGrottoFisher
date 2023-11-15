@@ -3,6 +3,8 @@ package Task;
 import org.osbot.rs07.Bot;
 import org.osbot.rs07.api.model.GroundItem;
 import org.osbot.rs07.api.model.Item;
+import org.osbot.rs07.event.EventQueue;
+import org.osbot.rs07.input.mouse.ClickMouseEvent;
 import org.osbot.rs07.input.mouse.InventorySlotDestination;
 import org.osbot.rs07.input.mouse.MouseDestination;
 
@@ -69,13 +71,13 @@ public class Drop extends Task {
 
         long preDrop = inventory.getAmount(BAITS);
 
-        ArrayList<MouseDestination> destinations = new ArrayList<>();
+        EventQueue mouseShiftDropClicks = new EventQueue();
         for (int invSlot : DROP_ORDERS[random(0, DROP_ORDERS.length - 1)]) {
             Item itemAtInvSlot = inventory.getItemInSlot(invSlot);
             if (itemAtInvSlot == null || itemAtInvSlot.nameContains(DO_NOT_DROP) || random(1000) <= SESSION_DROP_SKIP) {
                 continue;
             } else if (itemAtInvSlot.nameContains(BARBARIAN_FISH)) {
-                destinations.add(INVENTORY_SLOT_DESTINATION_MAPPING.get(invSlot));
+                mouseShiftDropClicks.add(new ClickMouseEvent(INVENTORY_SLOT_DESTINATION_MAPPING.get(invSlot)));
             }
         }
 
@@ -84,12 +86,7 @@ public class Drop extends Task {
         }
 
         keyboard.pressKey(VK_SHIFT);
-        for (MouseDestination d : destinations) {
-            mouse.click(d);
-            if (random(100) == 1) {
-                mouse.click(false);
-            }
-        }
+        execute(mouseShiftDropClicks);
         keyboard.releaseKey(VK_SHIFT);
         sleep(random(500, 1000));
         if (inventory.contains(BARBARIAN_FISH)) {
