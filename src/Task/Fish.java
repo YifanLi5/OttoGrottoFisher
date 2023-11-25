@@ -1,5 +1,6 @@
 package Task;
 
+import Paint.ScriptPaint;
 import org.osbot.rs07.Bot;
 import org.osbot.rs07.api.filter.ActionFilter;
 import org.osbot.rs07.api.filter.Filter;
@@ -89,17 +90,17 @@ public class Fish extends Task {
         }
 
         if (equipment.isWieldingWeapon("Dragon harpoon") && combat.getSpecialPercentage() == 100) {
+            ScriptPaint.setStatus("Dragon harpoon special");
             combat.toggleSpecialAttack(true);
         }
-
-        log("Looking for a fishing spot...");
+        ScriptPaint.setStatus("Querying Fishing spots");
         ConditionalLoop loop = new FindSpotThenFishLoop(bot, 5);
         loop.start();
         if(!loop.getResult()) {
             warn("Unable to find a fishing spot and fish. Exiting...");
             bot.getScriptExecutor().stop(false);
         }
-        log("Found one!");
+        ScriptPaint.setStatus("Fishing...");
 
         mouse.moveOutsideScreen();
     }

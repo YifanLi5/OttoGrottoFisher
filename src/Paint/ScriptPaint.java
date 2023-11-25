@@ -11,36 +11,49 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 
 public class ScriptPaint extends BotMouseListener implements Painter {
-    private static final Color GRAY = new Color(70, 61, 50, 156);
-    private boolean showPaint = true;
     private final Script script;
     private final long startTime;
     private final ExperienceTracker tracker;
+    private final int startingFishLvl;
 
-    private final int startLvlFishing;
-    private final int startLvlStr;
-    private final int startLvlAgility;
+    private final int startingStrLvl;
+    private final int startingAgilityLvl;
 
-    private final String[][] data = {
-        {"", "+XP (XP/H)", "LVL (+)"},
-        {"Fishing", "", ""},
-        {"Strength", "", ""},
-        {"Agility", "", ""}
+    private final String[][] xpTrackTemplate = {
+            {"", "+XP (XP/H)", "LVL (+)"},
+            {"Fishing", "[1][1]", "[1][2]"},
+            {"Strength", "[2][1]", "[2][2]"},
+            {"Agility", "[3][1]", "[3][2]"},
+            {"[4][0]"},
+            {"[5][0]"}
     };
-
-    private final int cellWidth = 100;
-    private final int cellHeight = 50;
-
-    private final Rectangle runtimeRect = new Rectangle(0, cellHeight * data.length, cellWidth * data[0].length, 25);
+    private static String status;
+    private final int cellWidth = 125;
+    private final int cellHeight = 35;
+    private static final Color GRID_BG = new Color(70, 61, 50, 156);
+    private static final Color RED = new Color(255, 61, 50, 156);
+    private static final Color GREEN = new Color(70, 255, 50, 156);
+    private final Rectangle togglePaintRectangle;
+    private Rectangle gridCanvas;
+    private final Font font = new Font("Arial", Font.PLAIN, 14);
+    private boolean showPaint = true;
 
     public ScriptPaint(Script script) {
         this.script = script;
+
+        int maxNumCols = 0;
+        for (String[] row : xpTrackTemplate) {
+            maxNumCols = Math.max(maxNumCols, row.length);
+        }
+
+        this.togglePaintRectangle = new Rectangle(0, 0, cellWidth, cellHeight);
+        status = "null";
         script.getBot().addPainter(this);
         script.getBot().addMouseListener(this);
 
-        startLvlFishing = script.skills.getStatic(Skill.FISHING);
-        startLvlStr = script.skills.getStatic(Skill.STRENGTH);
-        startLvlAgility = script.skills.getStatic(Skill.AGILITY);
+        startingFishLvl = script.skills.getStatic(Skill.FISHING);
+        startingStrLvl = script.skills.getStatic(Skill.STRENGTH);
+        startingAgilityLvl = script.skills.getStatic(Skill.AGILITY);
 
         startTime = System.currentTimeMillis();
         tracker = script.getExperienceTracker();
@@ -51,85 +64,118 @@ public class ScriptPaint extends BotMouseListener implements Painter {
 
     @Override
     public void onPaint(Graphics2D g2d) {
-        drawMouse(g2d);
-        populateDataGrid();
-        drawXpGrid(g2d, data, 0, 0, cellWidth, cellHeight, showPaint);
-        drawRuntime(g2d, runtimeRect, showPaint);
-    }
-
-    private void populateDataGrid() {
-        data[1][1] = String.format("+%s (%s)", formatNumber(tracker.getGainedXP(Skill.FISHING)), formatNumber(tracker.getGainedXPPerHour(Skill.FISHING)));
-        data[1][2] = String.format("%s (+%s)", startLvlFishing, tracker.getGainedLevels(Skill.FISHING));
-
-        data[2][1] = String.format("+%s (%s)", formatNumber(tracker.getGainedXP(Skill.STRENGTH)), formatNumber(tracker.getGainedXPPerHour(Skill.STRENGTH)));
-        data[2][2] = String.format("%s (+%s)", startLvlStr, tracker.getGainedLevels(Skill.STRENGTH));
-
-        data[3][1] = "^";
-        data[3][2] = String.format("%s (+%s)", startLvlAgility, tracker.getGainedLevels(Skill.AGILITY));
-    }
-
-    private void drawXpGrid(
-            Graphics2D g2d,
-            String[][] data,
-            int originX,
-            int originY,
-            int cellWidth,
-            int cellHeight,
-            boolean showPaint
-    ) {
-
-        if(showPaint) {
-            data[0][0] = "--Hide--";
-        } else {
-            data = new String[][]{{"--Show--"}};
-        }
-        int numRows = data.length;
-        int numCols = data[0].length;
-        int gridWidth = numCols * cellWidth;
-        int gridHeight = numRows * cellHeight;
-
-        g2d.setColor(GRAY);
-        g2d.fillRect(originX, originY, gridWidth, gridHeight);
-
-        g2d.setColor(Color.WHITE);
-
-        for (int i = 0; i <= numRows; i++) {
-            int y = originY + i * cellHeight;
-            g2d.drawLine(originX, y, originX + gridWidth, y);
-        }
-
-        for (int i = 0; i <= numCols; i++) {
-            int x = originX + i * cellWidth;
-            g2d.drawLine(x, originY, x, originY + gridHeight);
-        }
-
-        Font font = new Font("Arial", Font.PLAIN, 14);
         g2d.setFont(font);
+        drawMouse(g2d);
+        if(showPaint) {
+            populatePlaceholderArray();
+            drawGrid(g2d, xpTrackTemplate, cellWidth, cellHeight);
+            blockAccountInfo(g2d);
+        }
+        drawCenteredStr(g2d, togglePaintRectangle, showPaint ? "--Hide--" : "--Show--");
 
-        for (int i = 0; i < numRows; i++) {
-            for (int j = 0; j < numCols; j++) {
-                String cellData = data[i][j];
-                int x = originX + j * cellWidth + (cellWidth - g2d.getFontMetrics().stringWidth(cellData)) / 2;
-                int y = originY + i * cellHeight + (cellHeight - g2d.getFontMetrics().getHeight()) / 2
-                        + g2d.getFontMetrics().getAscent();
-                g2d.drawString(cellData, x, y);
+    }
+
+    public static void setStatus(String status) {
+        ScriptPaint.status = status;
+    }
+
+    private void populatePlaceholderArray() {
+        xpTrackTemplate[1][1] = String.format("+%s (%s)", formatNumber(tracker.getGainedXP(Skill.FISHING)), formatNumber(tracker.getGainedXPPerHour(Skill.FISHING)));
+        xpTrackTemplate[1][2] = String.format("%s (+%s)", startingFishLvl, tracker.getGainedLevels(Skill.FISHING));
+
+        xpTrackTemplate[2][1] = String.format("+%s (%s)", formatNumber(tracker.getGainedXP(Skill.STRENGTH)), formatNumber(tracker.getGainedXPPerHour(Skill.STRENGTH)));
+        xpTrackTemplate[2][2] = String.format("%s (+%s)", startingStrLvl, tracker.getGainedLevels(Skill.STRENGTH));
+
+        xpTrackTemplate[3][1] = String.format("+%s (%s)", formatNumber(tracker.getGainedXP(Skill.AGILITY)), formatNumber(tracker.getGainedXPPerHour(Skill.AGILITY)));
+        xpTrackTemplate[3][2] = String.format("%s (+%s)", startingAgilityLvl, tracker.getGainedLevels(Skill.AGILITY));
+
+        xpTrackTemplate[4][0] = String.format("Status: %s", status);
+        xpTrackTemplate[5][0] = formatTime(System.currentTimeMillis() - startTime);
+    }
+
+
+    private void drawGrid(Graphics2D g, String[][] data, int minCellWidth, int cellHeight) {
+        g.setFont(font);
+        g.setColor(GRID_BG); //Background Color of Grid
+        int maxNumCols = 0;
+        for (String[] row : data) {
+            maxNumCols = Math.max(maxNumCols, row.length);
+        }
+        if(gridCanvas == null)
+            gridCanvas = new Rectangle(minCellWidth * maxNumCols, cellHeight * data.length);
+        g.fill(gridCanvas);
+        g.setColor(Color.WHITE); // Color of Text and Grid lines
+        g.draw(gridCanvas);
+
+
+        // draw the horizontal lines
+        for (int i = 0; i <=  data.length; i++) {
+            int y = i * cellHeight;
+            g.drawLine(0, y, minCellWidth * maxNumCols, y);
+        }
+
+        for(int row = 0; row < data.length; row++) {
+            int numElementsInRow = data[row].length;
+
+            for(int col = 0; col < numElementsInRow; col++) {
+                // draw the strings in the right positions
+                int textX = col * (gridCanvas.width / numElementsInRow) + (gridCanvas.width / (numElementsInRow*2) - g.getFontMetrics().stringWidth(data[row][col]) / 2);
+                int textY = row * (gridCanvas.height / data.length) + (gridCanvas.height / (data.length*2)) - g.getFontMetrics(font).getHeight() / 2 + g.getFontMetrics().getAscent();
+                g.drawString(data[row][col], textX, textY);
+
+                // draw the vertical lines. Dividing each row into {numElementsInRow} sections
+                for(int i = 0; i < numElementsInRow - 1; i++) {
+                    int x = col * (gridCanvas.width / numElementsInRow);
+                    g.drawLine(x, row * cellHeight, x, row * cellHeight + cellHeight);
+                }
             }
         }
     }
 
-    public void drawRuntime(Graphics2D g2d, Rectangle rect, boolean showPaint) {
-        if(!showPaint) {
-            return;
+
+    private void drawCenteredStr(Graphics2D g2d, Rectangle rectangle, String str) {
+        if(showPaint) {
+            g2d.setColor(RED);
+        } else {
+            g2d.setColor(GREEN);
         }
-        g2d.setColor(GRAY);
-        g2d.fill(rect);
+
         FontMetrics metrics = g2d.getFontMetrics();
-        String runtime = formatTime(System.currentTimeMillis() - startTime);
-        int x = rect.x + (rect.width - metrics.stringWidth(runtime)) / 2;
-        int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
+
+        int centerX = rectangle.x + rectangle.width / 2;
+        int centerY = rectangle.y + rectangle.height / 2;
+
+        int textX = centerX - metrics.stringWidth(str) / 2;
+        int textY = centerY + metrics.getAscent() / 2;
+
+        g2d.fill(rectangle);
+
         g2d.setColor(Color.WHITE);
-        g2d.drawString(runtime, x, y);
-        g2d.draw(rect);
+        g2d.drawString(str, textX, textY);
+        g2d.draw(rectangle);
+    }
+
+    private void blockAccountInfo(Graphics2D g) {
+        // blocks chat window, total XP (if toggled visible), HP, Prayer
+        final int[][] widgetRootAndChild = new int[][] {
+                {162, 35},
+                {122, 10},
+                {160, 9},
+                {160, 20},
+        };
+        final RS2Widget[] accountInfoWidgets = new RS2Widget[widgetRootAndChild.length];
+
+        for(int idx = 0; idx < widgetRootAndChild.length; idx++) {
+            accountInfoWidgets[idx] = script.widgets.get(widgetRootAndChild[idx][0], widgetRootAndChild[idx][1]);
+        }
+
+        g.setColor(Color.BLACK);
+        for (RS2Widget widget: accountInfoWidgets) {
+            if(widget == null) {
+                continue;
+            }
+            g.fill(widget.getBounds());
+        }
     }
 
     private String formatTime(final long ms) {
@@ -149,14 +195,14 @@ public class ScriptPaint extends BotMouseListener implements Painter {
         return String.format("%d.%dk", numKs, hundreds);
     }
 
-
     @Override
     public void checkMouseEvent(MouseEvent mouseEvent) {
         if (mouseEvent.getID() == MouseEvent.MOUSE_PRESSED) {
             Point clickPt = mouseEvent.getPoint();
-            if (new Rectangle(0, 0, cellWidth, cellHeight).contains(clickPt)) {
+            if (togglePaintRectangle.contains(clickPt)) {
                 showPaint = !showPaint;
                 mouseEvent.consume();
+                script.log("showPaint: " + showPaint);
             }
         }
     }
