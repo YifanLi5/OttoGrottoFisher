@@ -20,4 +20,4 @@ Start with bait/feathers + barbarian fishing rod (or pearl variant)
 
 ### Paint: 
 
-![alt text](readme_img.PNG)
+![alt text](Barbarian_Fisher.jpg)

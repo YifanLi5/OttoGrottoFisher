@@ -8,7 +8,7 @@ import org.osbot.rs07.script.ScriptManifest;
 
 import static Task.ScriptConstants.*;
 
-@ScriptManifest(author = "yfoo", name = "Otto Grotto", info = "Barbarian Fishing Script", version = 1.0, logo = "")
+@ScriptManifest(author = "yfoo", name = "Otto Grotto", info = "Barbarian Fishing Script", version = 1.0, logo = "https://i.imgur.com/yhmN16A.png")
 public class MainScript extends Script {
     @Override
     public void onStart() throws InterruptedException {
