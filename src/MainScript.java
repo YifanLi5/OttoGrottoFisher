@@ -18,6 +18,8 @@ public class MainScript extends Script {
         new Fish(this.bot);
         new Drop(this.bot);
         new Idle(this.bot);
+
+        camera.movePitch(67);
     }
 
     @Override
