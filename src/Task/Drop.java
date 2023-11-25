@@ -1,5 +1,6 @@
 package Task;
 
+import Paint.ScriptPaint;
 import org.osbot.rs07.Bot;
 import org.osbot.rs07.api.model.GroundItem;
 import org.osbot.rs07.api.model.Item;
@@ -68,6 +69,7 @@ public class Drop extends Task {
                     "Was the client window resized?");
             bot.getScriptExecutor().stop(false);
         }
+        ScriptPaint.setStatus("Dropping Fish");
 
         long preDrop = inventory.getAmount(BAITS);
 

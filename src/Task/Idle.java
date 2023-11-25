@@ -1,5 +1,6 @@
 package Task;
 
+import Paint.ScriptPaint;
 import org.osbot.rs07.Bot;
 import org.osbot.rs07.input.mouse.MouseDestination;
 import org.osbot.rs07.utility.Condition;
@@ -28,9 +29,10 @@ public class Idle extends Task {
     @Override
     public void runTask() throws InterruptedException {
         shiftBottlesUp();
-        log("Idling...");
+        ScriptPaint.setStatus("Fishing... (Idle)");
         sleepWhileFishing.sleep();
         if (myPlayer().getAnimation() == -1) {
+            ScriptPaint.setStatus("Simulating AFK");
             long idleTime = randomGaussian(SESSION_MEAN, SESSION_STD_DEV);
             log(String.format("Simulating AFK for %dms", idleTime));
             sleep(idleTime);
@@ -39,6 +41,7 @@ public class Idle extends Task {
 
     // Swap clue bottles to first slot occupied by a fish
     private void shiftBottlesUp() throws InterruptedException {
+        ScriptPaint.setStatus("Moving clue bottles. !!!DO NOT RESIZE CLIENT!!!");
         int fishIdx = inventory.getSlot(ScriptConstants.BARBARIAN_FISH);
         int bottleIdx = inventory.getSlotForNameThatContains("Clue bottle");
         if (fishIdx != -1 && bottleIdx != -1 && bottleIdx > fishIdx) {
