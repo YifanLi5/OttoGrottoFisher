@@ -7,9 +7,7 @@ import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.event.EventQueue;
 import org.osbot.rs07.input.mouse.ClickMouseEvent;
 import org.osbot.rs07.input.mouse.InventorySlotDestination;
-import org.osbot.rs07.input.mouse.MouseDestination;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;

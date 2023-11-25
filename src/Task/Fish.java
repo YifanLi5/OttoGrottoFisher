@@ -37,13 +37,13 @@ public class Fish extends Task {
                 fishingSpot = fishingSpots.get(random(fishingSpots.size()));
             }
 
-            if(fishingSpot != null) {
+            if (fishingSpot != null) {
                 Event fishEvent = new InteractionEvent(fishingSpot, "Use-rod")
                         .setOperateCamera(false)
                         .setBlocking();
 
                 execute(fishEvent);
-                if(fishEvent.hasFailed()) {
+                if (fishEvent.hasFailed()) {
                     warn("Fish event failed. Retrying...");
                 }
             } else {
@@ -59,6 +59,7 @@ public class Fish extends Task {
             return !result;
         }
     }
+
     public Fish(Bot bot) {
         super(bot);
     }
@@ -96,7 +97,7 @@ public class Fish extends Task {
         ScriptPaint.setStatus("Querying Fishing spots");
         ConditionalLoop loop = new FindSpotThenFishLoop(bot, 5);
         loop.start();
-        if(!loop.getResult()) {
+        if (!loop.getResult()) {
             warn("Unable to find a fishing spot and fish. Exiting...");
             bot.getScriptExecutor().stop(false);
         }

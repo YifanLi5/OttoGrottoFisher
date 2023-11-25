@@ -7,7 +7,9 @@ Start with bait/feathers + barbarian fishing rod (or pearl variant)
 
 * ~20k-55k fishing xph, ~2.5-5.5k strength and agility xph. (Lvl Based)
 * Random inventory shift click drop orders.
-* AFK simulation: Mouse offscreen/random AFKs if inventory is full or if the fishing spot moved.
+  * May drop fish if inventory is almost full. (Can't AFK much if not many inventory freespace)
+* AFK simulation, random normal distribution every script run session
+  * random AFKs if inventory is full or if the fishing spot moved.
 * Dragon Harpoon special (If equipped)
 * Saves Clue bottles
 * Stops on feather/bait shortage
