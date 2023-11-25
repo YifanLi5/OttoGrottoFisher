@@ -101,8 +101,6 @@ public class Fish extends Task {
             bot.getScriptExecutor().stop(false);
         }
         ScriptPaint.setStatus("Fishing...");
-
-        mouse.moveOutsideScreen();
     }
 }
 

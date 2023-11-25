@@ -4,6 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ScriptConstants {
     public static final int FISHING_ANIM_ID = 9350;
+    public static final int IDLE_ANIM_ID = -1;
     public final static String[] BARBARIAN_FISH = {"Leaping trout", "Leaping salmon", "Leaping sturgeon"};
 
     public final static String[] DO_NOT_DROP = {"Feather", "Bait", "Fish offcuts", "Barbarian rod", "Pearl barbarian rod", "Clue bottle"};
