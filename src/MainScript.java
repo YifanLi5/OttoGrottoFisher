@@ -28,6 +28,6 @@ public class MainScript extends Script {
         if (currentTask != null) {
             currentTask.runTask();
         }
-        return random(1000);
+        return random(250, 1000);
     }
 }
